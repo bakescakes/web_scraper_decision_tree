@@ -1,0 +1,38 @@
+{
+  "benchmark_type": "known_good_extraction",
+  "timestamp": "2025-07-03T12:32:42.712586",
+  "test_result": {
+    "url": "https://pitchfork.com/features/lists-and-guides/best-songs-2024/",
+    "domain": "pitchfork.com",
+    "extraction_method": "mcp_browser",
+    "songs": [
+      "Church Chords - Warriors of Playtime",
+      "more eaze - a(nother) cadence",
+      "Body Meat - High Beams",
+      "414BigFrank - Eat Her Up",
+      "Tashi Dorji - begin from here",
+      "Porter Robinson - Cheerleader",
+      "Star Bandz - Yea Yea",
+      "JADE - Angel of My Dreams",
+      "Shabaka - I'll Do Whatever You Want (ft. Floating Points & Laraaji)",
+      "Jeff Parker ETA IVtet - Freakadelic"
+    ],
+    "timestamp": "2025-07-03T12:32:42.711824",
+    "duration_seconds": 2.15,
+    "performance_status": "EXCELLENT"
+  },
+  "validation": {
+    "total_songs": 10,
+    "valid_songs": 10,
+    "invalid_songs": 0,
+    "empty_songs": 0,
+    "duplicate_songs": 0,
+    "validation_errors": []
+  },
+  "meets_production_criteria": true,
+  "production_standards": {
+    "min_songs": 5,
+    "max_duration_seconds": 40,
+    "min_quality_ratio": 0.7
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-07-03T12:30:03.343356",
+  "config": {
+    "max_response_time": 40,
+    "target_response_time": 15,
+    "timeout_seconds": 15,
+    "browser_timeout": 20,
+    "min_songs_threshold": 5,
+    "quality_threshold": 0.7
+  },
+  "test_results": [
+    {
+      "url": "https://pitchfork.com/features/lists-and-guides/best-songs-2024/",
+      "domain": "pitchfork.com",
+      "success": true,
+      "songs_extracted": 580,
+      "duration_seconds": 0.0,
+      "performance_status": "EXCELLENT",
+      "validation": {
+        "total_songs": 580,
+        "valid_songs": 580,
+        "invalid_songs": 0,
+        "empty_songs": 0,
+        "duplicate_songs": 0,
+        "validation_errors": []
+      },
+      "sample_songs": [
+        "size17pxfont-weight400overflow-wrapnormalcolorrgba(204,204,204,1)!sc .iGJKQm acolorinherit!sc .eUsLRT--type-tokenconsumptionEditorial.hed-standardtext-transformnonefont-familyFeatureFlatDisplay ,helvetica,sans-seriffont-feature-settingsnormalfont-stylenormal-webkit-letter-spacingnormal-moz-letter-spacingnormal-ms-letter-spacingnormalletter-spacingnormalline-breakautoline-height - 6470588235294117emfont",
+        "size32pxfont-weight700overflow-wrapnormalcolorrgba(0,0,0,1)!sc media (min-width768px).eUsLRTfont-size38pxline-height - 125emfont",
+        "width1024px).eUsLRTfont-size48pxline-height - 1578947368421053em!sc media (min",
+        "type-tokenglobalEditorial.accreditation-coretext-transformnonefont-familyWalfork ,helvetica,sans-seriffont-feature-settingsnormalfont-stylenormal-webkit-letter-spacingnormal-moz-letter-spacingnormal-ms-letter-spacingnormalletter-spacingnormalline-breakautoline-height - 1666666666666667em!sc .eUsLRT acolorinherit!sc .jjPlvX",
+        "size12pxfont-weight400overflow-wrapnormalcolorrgba(43,43,43,1)!sc .jjPlvX acolorinherit!sc .gqJeZi--type-tokenglobalEditorial.context-tertiarytext-transformnonefont-familyWalfork ,helvetica,sans-seriffont-feature-settingsnormalfont-stylenormal-webkit-letter-spacingnormal-moz-letter-spacingnormal-ms-letter-spacingnormalletter-spacingnormalline-breakautoline-height - 3333333333333333emfont"
+      ],
+      "meets_production_criteria": true
+    }
+  ],
+  "overall_performance": {
+    "total_duration": 2.0407497882843018,
+    "successful_tests": 1,
+    "total_tests": 1,
+    "success_rate": 1.0,
+    "average_duration": 2.0407497882843018,
+    "production_ready": true
+  }
+}
