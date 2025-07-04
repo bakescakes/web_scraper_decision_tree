@@ -213,10 +213,50 @@ def extract_and_display_songs(url: str):
         if songs:
             st.success(f"✅ Successfully extracted {len(songs)} songs via production API!")
             
-            # Display songs
+            # Display songs with better formatting
             st.header("🎵 Extracted Songs")
-            for i, song in enumerate(songs, 1):
-                st.write(f"{i}. {song}")
+            
+            def format_song_display(song, index):
+                """Format a song for better display."""
+                if isinstance(song, dict):
+                    title = song.get('title', 'Unknown Title')
+                    artist = song.get('artist', 'Unknown Artist')
+                    position = song.get('position', index)
+                    
+                    # Clean up title (remove artist name if it's duplicated)
+                    if ':' in title and artist == 'Unknown':
+                        # Extract artist from title like "Halsey: 'I am not a woman, I'm a god'"
+                        parts = title.split(':', 1)
+                        if len(parts) == 2:
+                            artist = parts[0].strip()
+                            title = parts[1].strip().strip('\"\'')
+                    
+                    # Format cleanly
+                    if artist and artist != 'Unknown':
+                        return f"{position}. **{artist}** - {title}"
+                    else:
+                        return f"{position}. {title}"
+                else:
+                    # Fallback for string format
+                    return f"{index}. {song}"
+            
+            # Display songs in columns for better layout
+            if len(songs) > 50:
+                # For large lists, use two columns
+                col1, col2 = st.columns(2)
+                half = len(songs) // 2
+                
+                with col1:
+                    for i, song in enumerate(songs[:half], 1):
+                        st.markdown(format_song_display(song, i))
+                
+                with col2:
+                    for i, song in enumerate(songs[half:], half + 1):
+                        st.markdown(format_song_display(song, i))
+            else:
+                # For smaller lists, single column
+                for i, song in enumerate(songs, 1):
+                    st.markdown(format_song_display(song, i))
             
             # Show API response details (only if debug enabled)
             if ProductionConfig.SHOW_DEBUG_INFO:
@@ -301,8 +341,34 @@ def run_api_demo(demo_url: str):
             st.success(f"🎉 Production API Demo complete! Extracted {len(songs)} songs{duration_text}")
             
             st.header("🎵 Extracted Songs (via Production API)")
+            
+            def format_song_display(song, index):
+                """Format a song for better display."""
+                if isinstance(song, dict):
+                    title = song.get('title', 'Unknown Title')
+                    artist = song.get('artist', 'Unknown Artist')
+                    position = song.get('position', index)
+                    
+                    # Clean up title (remove artist name if it's duplicated)
+                    if ':' in title and artist == 'Unknown':
+                        # Extract artist from title like "Halsey: 'I am not a woman, I'm a god'"
+                        parts = title.split(':', 1)
+                        if len(parts) == 2:
+                            artist = parts[0].strip()
+                            title = parts[1].strip().strip('\"\'')
+                    
+                    # Format cleanly
+                    if artist and artist != 'Unknown':
+                        return f"{position}. **{artist}** - {title}"
+                    else:
+                        return f"{position}. {title}"
+                else:
+                    # Fallback for string format
+                    return f"{index}. {song}"
+            
+            # Display songs with better formatting
             for i, song in enumerate(songs, 1):
-                st.write(f"{i}. {song}")
+                st.markdown(format_song_display(song, i))
             
             # Show API response details (only if debug enabled)
             if ProductionConfig.SHOW_DEBUG_INFO:

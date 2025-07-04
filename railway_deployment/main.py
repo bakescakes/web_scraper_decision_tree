@@ -145,68 +145,145 @@ async def extract_with_http_fallback(url: str, timeout: int) -> List[Dict[str, A
         ]
 
 def extract_pitchfork_songs(soup):
-    """Extract songs from Pitchfork"""
+    """Extract songs from Pitchfork - improved to get all songs"""
     songs = []
     
-    # Look for common Pitchfork patterns
+    # Enhanced Pitchfork patterns for complete lists
     selectors = [
+        # Look for numbered list items first
+        'ol li',
+        'ul li',
+        # Then specific Pitchfork patterns
         '.track-collection-item',
         '.review-detail h2',
         '.track-details h3',
-        'h2, h3'
+        # Generic patterns for song lists
+        'h2, h3',
+        'p strong',
+        # Pattern for "X. Artist - Song" format
+        'p'
     ]
     
+    position_counter = 1
+    
     for selector in selectors:
-        elements = soup.select(selector)[:10]  # Limit to 10 songs
+        elements = soup.select(selector)
         if elements:
-            for i, elem in enumerate(elements):
+            for elem in elements:
                 text = elem.get_text(strip=True)
-                if text and len(text) > 3:
-                    # Try to parse "Artist - Song" format
-                    if ' - ' in text or ' – ' in text:
-                        parts = re.split(r' - | – ', text, 1)
+                if not text or len(text) < 5:
+                    continue
+                
+                # Check if it's a numbered song entry
+                numbered_pattern = r'^(\d+)\.?\s*(.+)'
+                match = re.match(numbered_pattern, text)
+                
+                if match:
+                    position = int(match.group(1))
+                    song_text = match.group(2).strip()
+                    
+                    # Parse artist and title
+                    if ':' in song_text:
+                        # Format like "Artist: 'Song Title'"
+                        parts = song_text.split(':', 1)
+                        artist = parts[0].strip()
+                        title = parts[1].strip().strip('\'"\"')
+                        songs.append({
+                            "artist": artist,
+                            "title": title,
+                            "position": position
+                        })
+                    elif ' - ' in song_text or ' – ' in song_text:
+                        # Format like "Artist - Song"
+                        parts = re.split(r' - | – ', song_text, 1)
                         if len(parts) == 2:
                             songs.append({
                                 "artist": parts[0].strip(),
                                 "title": parts[1].strip(),
-                                "position": i + 1
+                                "position": position
                             })
+                    else:
+                        songs.append({
+                            "title": song_text,
+                            "artist": "Unknown",
+                            "position": position
+                        })
+                
+                # Stop when we have enough songs or hit position 100+
+                if len(songs) >= 100:
+                    break
+            
+            # If we found numbered entries, we're done
+            if songs:
+                break
+    
+    # If no numbered entries, look for other patterns
+    if not songs:
+        for selector in ['h2', 'h3', 'strong']:
+            elements = soup.select(selector)
+            for i, elem in enumerate(elements[:100], 1):
+                text = elem.get_text(strip=True)
+                if text and len(text) > 5 and not any(skip in text.lower() for skip in ['advertisement', 'related', 'more', 'share']):
+                    if ':' in text:
+                        parts = text.split(':', 1)
+                        songs.append({
+                            "artist": parts[0].strip(),
+                            "title": parts[1].strip().strip('\'"\"'),
+                            "position": i
+                        })
                     else:
                         songs.append({
                             "title": text,
                             "artist": "Unknown",
-                            "position": i + 1
+                            "position": i
                         })
-            break
+            if songs:
+                break
     
-    return songs[:10]
+    # Sort by position and return up to 500 songs
+    songs.sort(key=lambda x: x['position'])
+    return songs[:500]
 
 def extract_billboard_songs(soup):
-    """Extract songs from Billboard"""
+    """Extract songs from Billboard - improved to get all songs"""
     songs = []
     
-    # Look for Billboard chart patterns
+    # Enhanced Billboard patterns
     selectors = [
-        '.chart-list-item h3',
+        # Look for numbered list items
+        'ol li',
+        '.chart-list-item',
         '.chart-element__information__song',
         '.chart-element__information__artist',
-        'h3.c-title'
+        'h3.c-title',
+        'h2, h3'
     ]
     
     for selector in selectors:
-        elements = soup.select(selector)[:10]
+        elements = soup.select(selector)
         if elements:
-            for i, elem in enumerate(elements):
+            for i, elem in enumerate(elements[:100], 1):
                 text = elem.get_text(strip=True)
-                if text and len(text) > 2:
+                if text and len(text) > 2 and not any(skip in text.lower() for skip in ['advertisement', 'related', 'more']):
+                    # Try to extract position number
+                    numbered_pattern = r'^(\d+)\.?\s*(.+)'
+                    match = re.match(numbered_pattern, text)
+                    
+                    if match:
+                        position = int(match.group(1))
+                        song_text = match.group(2).strip()
+                    else:
+                        position = i
+                        song_text = text
+                    
                     songs.append({
-                        "title": text,
+                        "title": song_text,
                         "artist": "Billboard Chart",
-                        "position": i + 1
+                        "position": position
                     })
             break
     
-    return songs[:10]
+    return songs[:100]
 
 def extract_rolling_stone_songs(soup):
     """Extract songs from Rolling Stone"""
@@ -235,31 +312,66 @@ def extract_rolling_stone_songs(soup):
     return songs[:10]
 
 def extract_generic_songs(soup):
-    """Generic song extraction"""
+    """Generic song extraction - improved to get all songs"""
     songs = []
     
-    # Look for common patterns
+    # Enhanced generic patterns
     selectors = [
+        'ol li',
+        'ul li', 
         'h1, h2, h3',
         '.title',
         '.song',
-        '.track'
+        '.track',
+        'p strong',
+        'p'
     ]
     
     for selector in selectors:
-        elements = soup.select(selector)[:10]
+        elements = soup.select(selector)
         if elements:
-            for i, elem in enumerate(elements):
+            for i, elem in enumerate(elements[:100], 1):
                 text = elem.get_text(strip=True)
-                if text and len(text) > 3:
-                    songs.append({
-                        "title": text,
-                        "artist": "Generic",
-                        "position": i + 1
-                    })
+                if text and len(text) > 3 and not any(skip in text.lower() for skip in ['advertisement', 'related', 'more', 'share', 'subscribe']):
+                    
+                    # Check for numbered entries
+                    numbered_pattern = r'^(\d+)\.?\s*(.+)'
+                    match = re.match(numbered_pattern, text)
+                    
+                    if match:
+                        position = int(match.group(1))
+                        song_text = match.group(2).strip()
+                    else:
+                        position = i
+                        song_text = text
+                    
+                    # Parse artist and title
+                    if ':' in song_text:
+                        parts = song_text.split(':', 1)
+                        songs.append({
+                            "artist": parts[0].strip(),
+                            "title": parts[1].strip().strip('\'"\"'),
+                            "position": position
+                        })
+                    elif ' - ' in song_text or ' – ' in song_text:
+                        parts = re.split(r' - | – ', song_text, 1)
+                        if len(parts) == 2:
+                            songs.append({
+                                "artist": parts[0].strip(),
+                                "title": parts[1].strip(),
+                                "position": position
+                            })
+                    else:
+                        songs.append({
+                            "title": song_text,
+                            "artist": "Unknown",
+                            "position": position
+                        })
             break
     
-    return songs[:10]
+    # Sort by position and return up to 100 songs
+    songs.sort(key=lambda x: x['position'])
+    return songs[:100]
 
 if __name__ == "__main__":
     import uvicorn
