@@ -13,7 +13,7 @@ class ProductionConfig:
     """Production configuration settings optimized for <40s response time."""
     
     # API Configuration (for API server integration)
-    API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://web-scraper-api-production-70c7.up.railway.app")
     API_TIMEOUT = int(os.getenv("API_TIMEOUT", "35"))  # Longer timeout for production reliability
     API_MAX_RETRIES = int(os.getenv("API_MAX_RETRIES", "2"))
     
