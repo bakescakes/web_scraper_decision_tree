@@ -1,5 +1,5 @@
 # Enhanced Web Scraper API v2 Requirements
-# Optimized for Railway deployment with complete framework integration
+# Optimized for Railway deployment with Python 3.12 compatibility
 
 # Core Web Framework
 fastapi==0.104.1
@@ -17,10 +17,10 @@ lxml==4.9.3
 html5lib==1.1
 selectolax==0.3.17
 
-# Pattern Discovery and Analysis
-numpy==1.24.3
-pandas==2.0.3
-scikit-learn==1.3.0
+# Pattern Discovery and Analysis (Python 3.12 compatible)
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.0
 
 # Data Storage and Caching
 sqlalchemy==2.0.23
