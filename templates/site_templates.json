@@ -1,0 +1,145 @@
+{
+  "templates": {
+    "billboard_style": {
+      "name": "Billboard Chart Style",
+      "description": "Template for Billboard-style chart pages with numbered rankings",
+      "navigation": {
+        "method": "direct_url",
+        "wait_for": "main",
+        "timeout": 10
+      },
+      "container": {
+        "role": "main",
+        "selector": "main",
+        "description": "Main chart container"
+      },
+      "item_pattern": {
+        "role": "list",
+        "nesting": "deep",
+        "selector": "list",
+        "description": "Individual chart entries"
+      },
+      "title_extraction": {
+        "role": "heading",
+        "level": 3,
+        "attribute": "name",
+        "description": "Song title in heading element"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "position": "after_title",
+        "attribute": "name",
+        "description": "Artist name in generic element"
+      },
+      "metadata_fields": ["position", "last_week", "peak", "weeks_on_chart"]
+    },
+    "editorial_style": {
+      "name": "Editorial Content Style",
+      "description": "Template for editorial content like Pitchfork, NPR, Guardian",
+      "navigation": {
+        "method": "scroll_discovery",
+        "wait_for": "article",
+        "timeout": 15
+      },
+      "container": {
+        "role": "article",
+        "selector": "article, .content, main",
+        "description": "Article content container"
+      },
+      "item_pattern": {
+        "role": "generic",
+        "nesting": "mixed",
+        "selector": "p, div, li",
+        "description": "Song mentions in text content"
+      },
+      "title_extraction": {
+        "role": "generic",
+        "patterns": ["\"([^\"]+)\"", "'([^']+)'"],
+        "description": "Song titles in quotes"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "patterns": ["by ([A-Za-z\\s]+)", "([A-Za-z\\s]+) -"],
+        "description": "Artist names before or after titles"
+      },
+      "metadata_fields": ["genre", "year", "album"]
+    },
+    "complex_js_style": {
+      "name": "Complex JavaScript Style",
+      "description": "Template for JavaScript-heavy sites like Complex",
+      "navigation": {
+        "method": "js_wait",
+        "wait_for": "dynamic_content",
+        "timeout": 20
+      },
+      "container": {
+        "role": "generic",
+        "selector": "[data-*], .dynamic-content",
+        "description": "Dynamic content containers"
+      },
+      "item_pattern": {
+        "role": "generic",
+        "nesting": "dynamic",
+        "selector": "[data-song], [data-track]",
+        "description": "Dynamic song elements"
+      },
+      "title_extraction": {
+        "role": "generic",
+        "attribute": "data-title",
+        "fallback": "text",
+        "description": "Song title from data attributes or text"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "attribute": "data-artist",
+        "fallback": "text",
+        "description": "Artist name from data attributes or text"
+      },
+      "metadata_fields": ["genre", "release_date", "popularity"]
+    },
+    "generic": {
+      "name": "Generic Template",
+      "description": "Fallback template for unknown sites",
+      "navigation": {
+        "method": "basic_load",
+        "wait_for": "body",
+        "timeout": 10
+      },
+      "container": {
+        "role": "generic",
+        "selector": "body",
+        "description": "Entire page body"
+      },
+      "item_pattern": {
+        "role": "generic",
+        "nesting": "simple",
+        "selector": "*",
+        "description": "Any element with text content"
+      },
+      "title_extraction": {
+        "role": "generic",
+        "patterns": ["([A-Za-z0-9\\s]+)"],
+        "description": "Basic text extraction"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "patterns": ["([A-Za-z0-9\\s]+)"],
+        "description": "Basic text extraction"
+      },
+      "metadata_fields": []
+    }
+  },
+  "domain_mappings": {
+    "pitchfork.com": "editorial_style",
+    "billboard.com": "billboard_style",
+    "npr.org": "editorial_style",
+    "theguardian.com": "editorial_style",
+    "rollingstone.com": "editorial_style",
+    "stereogum.com": "editorial_style",
+    "complex.com": "complex_js_style",
+    "pastemagazine.com": "editorial_style",
+    "consequence.net": "editorial_style",
+    "spin.com": "editorial_style",
+    "musicblog.org": "editorial_style"
+  }
+}
