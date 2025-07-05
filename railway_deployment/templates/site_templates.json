@@ -1,0 +1,175 @@
+{
+  "templates": {
+    "billboard_style": {
+      "name": "Billboard Chart Style",
+      "description": "Template for Billboard charts and similar structured chart sites",
+      "navigation": {
+        "method": "direct_url",
+        "wait_for": "main",
+        "timeout": 10
+      },
+      "container": {
+        "role": "main",
+        "selector": "main",
+        "description": "Main chart container"
+      },
+      "item_pattern": {
+        "role": "list",
+        "nesting": "deep",
+        "selector": "list",
+        "description": "Individual chart entries"
+      },
+      "title_extraction": {
+        "role": "heading",
+        "level": 3,
+        "attribute": "name",
+        "description": "Song title in heading element"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "position": "after_title",
+        "attribute": "name",
+        "description": "Artist name in generic element"
+      },
+      "metadata_fields": ["position", "last_week", "peak", "weeks_on_chart"],
+      "expected_count_range": [50, 200]
+    },
+    
+    "editorial_style": {
+      "name": "Editorial List Style",
+      "description": "Template for editorial music lists (NPR, Guardian, etc.)",
+      "navigation": {
+        "method": "direct_url",
+        "wait_for": "article",
+        "timeout": 10
+      },
+      "container": {
+        "role": "article",
+        "selector": "article",
+        "description": "Editorial article container"
+      },
+      "item_pattern": {
+        "role": "listitem",
+        "nesting": "shallow",
+        "selector": "listitem",
+        "description": "Individual list items"
+      },
+      "title_extraction": {
+        "role": "heading",
+        "level": [2, 3, 4],
+        "attribute": "name",
+        "description": "Song title in heading"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "position": "in_title",
+        "attribute": "name",
+        "description": "Artist name within title"
+      },
+      "metadata_fields": ["description", "review_snippet"],
+      "expected_count_range": [10, 50]
+    },
+    
+    "pitchfork_style": {
+      "name": "Pitchfork Lists",
+      "description": "Template for Pitchfork best-of lists and tracks pages",
+      "navigation": {
+        "method": "direct_url",
+        "wait_for": "main",
+        "timeout": 15
+      },
+      "container": {
+        "role": "main",
+        "selector": "main",
+        "description": "Main content container"
+      },
+      "item_pattern": {
+        "role": "listitem",
+        "nesting": "moderate",
+        "selector": "div.heading-h3",
+        "description": "Numbered list items with heading-h3 class"
+      },
+      "title_extraction": {
+        "role": "heading",
+        "level": 2,
+        "attribute": "name", 
+        "position": "sibling_after",
+        "description": "Song title in h2 following heading-h3 number"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "position": "in_title",
+        "attribute": "name",
+        "format": "Artist: \"Song Title\"",
+        "description": "Artist extracted from title format"
+      },
+      "metadata_fields": ["ranking", "year", "review_snippet"],
+      "expected_count_range": [50, 100]
+    },
+    
+    "complex_js_style": {
+      "name": "Complex JavaScript Sites",
+      "description": "Template for sites with heavy JavaScript and dynamic loading",
+      "navigation": {
+        "method": "browser_automation",
+        "wait_for": "loaded",
+        "timeout": 20,
+        "scroll_required": true
+      },
+      "container": {
+        "role": "main",
+        "selector": "main",
+        "description": "Main dynamic container"
+      },
+      "item_pattern": {
+        "role": "listitem",
+        "nesting": "variable",
+        "selector": "dynamic",
+        "description": "Dynamically loaded items"
+      },
+      "title_extraction": {
+        "role": "heading",
+        "level": [2, 3],
+        "attribute": "name",
+        "description": "Song title in dynamic heading"
+      },
+      "artist_extraction": {
+        "role": "generic",
+        "position": "context_dependent",
+        "attribute": "name",
+        "description": "Artist name in context"
+      },
+      "metadata_fields": ["dynamic_metadata"],
+      "expected_count_range": [10, 100]
+    }
+  },
+  
+  "domain_mappings": {
+    "billboard.com": "billboard_style",
+    "pitchfork.com": "pitchfork_style", 
+    "npr.org": "editorial_style",
+    "theguardian.com": "editorial_style",
+    "rollingstone.com": "editorial_style",
+    "stereogum.com": "editorial_style",
+    "pastemagazine.com": "editorial_style",
+    "complex.com": "complex_js_style",
+    "genius.com": "complex_js_style",
+    "spotify.com": "complex_js_style",
+    "apple.com": "complex_js_style"
+  },
+  
+  "validation_rules": {
+    "min_song_length": 2,
+    "max_song_length": 200,
+    "min_artist_length": 1,
+    "max_artist_length": 100,
+    "required_separators": [" - ", ": ", " by "],
+    "filter_patterns": [
+      "Advertisement",
+      "Subscribe", 
+      "Sign up",
+      "Follow us",
+      "More from"
+    ]
+  }
+}
