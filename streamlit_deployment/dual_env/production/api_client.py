@@ -77,17 +77,21 @@ class APIClient:
         try:
             start_time = time.time()
             
-            # Prepare request payload
-            payload = {
-                "url": url,
-                "timeout": timeout,
-                "max_retries": max_retries
+            # Prepare request parameters for GET request
+            params = {
+                "url": url
             }
             
-            # Make API request
-            response = self.session.post(
+            # Add optional parameters if provided
+            if timeout != 60:  # Only add if different from default
+                params["timeout"] = timeout
+            if max_retries != 3:  # Only add if different from default
+                params["max_retries"] = max_retries
+            
+            # Make API request using GET method with query parameters
+            response = self.session.get(
                 urljoin(self.base_url, "/extract"),
-                json=payload,
+                params=params,
                 timeout=self.timeout
             )
             
