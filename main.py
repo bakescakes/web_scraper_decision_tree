@@ -36,6 +36,14 @@ except ImportError as e:
     print(f"⚠️ Comprehensive extractor not available: {e}")
     COMPREHENSIVE_AVAILABLE = False
 
+try:
+    from extractors.lightweight_extractor import extract_songs_lightweight_async
+    print("✅ Loaded lightweight requests extractor")
+    LIGHTWEIGHT_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Lightweight extractor not available: {e}")
+    LIGHTWEIGHT_AVAILABLE = False
+
 # Create FastAPI app with our proven extraction logic
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -61,7 +69,8 @@ def health_check():
         "version": "3.0.0-playwright-production",
         "timestamp": datetime.now().isoformat(),
         "playwright_available": PLAYWRIGHT_EXTRACTOR_AVAILABLE,
-        "comprehensive_available": COMPREHENSIVE_AVAILABLE
+        "comprehensive_available": COMPREHENSIVE_AVAILABLE,
+        "lightweight_available": LIGHTWEIGHT_AVAILABLE
     }
 
 @app.get("/extract")
@@ -81,6 +90,21 @@ async def extract_songs(url: str, max_songs: int = 10):
                 "songs": result.get("songs", [])[:max_songs],
                 "method": result.get("method", "playwright_direct"),
                 "version": "3.0.0-playwright-production",
+                "execution_time": result.get("execution_time", 0),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        elif LIGHTWEIGHT_AVAILABLE:
+            print("🚀 Using lightweight requests extractor...")
+            result = await extract_songs_lightweight_async(url, expected_count=max_songs)
+            
+            return {
+                "success": result.get("success", True),
+                "url": url,
+                "songs_found": result.get("actual_count", len(result.get("songs", []))),
+                "songs": result.get("songs", [])[:max_songs],
+                "method": result.get("method", "lightweight_requests"),
+                "version": "3.0.0-lightweight",
                 "execution_time": result.get("execution_time", 0),
                 "timestamp": datetime.now().isoformat()
             }
