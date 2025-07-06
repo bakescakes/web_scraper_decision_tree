@@ -1,73 +1,114 @@
 #!/usr/bin/env python3
 """
-Railway Entry Point - Redirects to v3.0.0 Production API
-This file ensures Railway deploys our v3.0.0 Playwright extraction code
-Updated: 2025-07-05 20:20 - Fixed dependency conflicts
+Railway Entry Point - v3.0.0 Production API with Real Playwright Extraction
+This loads our proven Playwright production extractor that we built together
 """
 
 import sys
 import os
+import asyncio
 from pathlib import Path
+from datetime import datetime
 
-# Add the correct path for our production API
-sys.path.insert(0, str(Path(__file__).parent / "mcp_api_server" / "production"))
+# Add paths for our existing extractors
+sys.path.insert(0, str(Path(__file__).parent))
 
-# Import and run the production API
+# Import our existing robust extraction code
 try:
-    from mcp_api_server.production.main import app
-    print("✅ Successfully loaded v3.0.0 Production API")
-    print("🎵 Real Playwright song extraction enabled")
+    from extractors.playwright_production_extractor import extract_songs_production_async
+    print("✅ Loaded existing Playwright production extractor")
+    PLAYWRIGHT_EXTRACTOR_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️ MCP production API not available: {e}")
-    print("🔄 Loading simplified v3.0.0 API...")
+    print(f"⚠️ Playwright extractor not available: {e}")
+    try:
+        # Fallback to railway_deployment location
+        from railway_deployment.extractors.playwright_production_extractor import extract_songs_production_async
+        print("✅ Loaded Playwright extractor from railway_deployment")
+        PLAYWRIGHT_EXTRACTOR_AVAILABLE = True
+    except ImportError:
+        PLAYWRIGHT_EXTRACTOR_AVAILABLE = False
+
+try:
+    from comprehensive_song_extractor import ComprehensiveSongExtractor
+    print("✅ Loaded comprehensive song extractor")
+    COMPREHENSIVE_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Comprehensive extractor not available: {e}")
+    COMPREHENSIVE_AVAILABLE = False
+
+# Create FastAPI app with our proven extraction logic
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(
+    title="Web Scraper API v3.0.0 - Real Playwright Extraction",
+    description="Production API using our proven Playwright extraction logic",
+    version="3.0.0-playwright-production"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "version": "3.0.0-playwright-production",
+        "timestamp": datetime.now().isoformat(),
+        "playwright_available": PLAYWRIGHT_EXTRACTOR_AVAILABLE,
+        "comprehensive_available": COMPREHENSIVE_AVAILABLE
+    }
+
+@app.get("/extract")
+async def extract_songs(url: str, max_songs: int = 10):
+    """Real song extraction using our proven Playwright logic"""
+    print(f"🎵 Extracting songs from: {url}")
     
-    # Create simplified v3.0.0 API without MCP dependencies
-    from fastapi import FastAPI, HTTPException
-    from fastapi.middleware.cors import CORSMiddleware
-    import requests
-    from datetime import datetime
-    
-    app = FastAPI(
-        title="MCP API Server v3.0.0 - Real Playwright Extraction",
-        description="Simplified v3.0.0 API with real song extraction",
-        version="3.0.0-simplified"
-    )
-    
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["GET", "POST"],
-        allow_headers=["*"],
-    )
-    
-    @app.get("/health")
-    def health_check():
-        return {
-            "status": "healthy",
-            "version": "3.0.0-simplified",
-            "timestamp": datetime.now().isoformat(),
-            "framework_status": "simplified"
-        }
-    
-    @app.get("/extract")
-    def extract_songs(url: str, max_songs: int = 10):
-        """Simplified extraction - will be replaced with real Playwright later"""
-        return {
-            "success": True,
-            "url": url,
-            "songs_found": 3,
-            "songs": [
-                "Real Song Title 1 - Artist Name",
-                "Real Song Title 2 - Artist Name", 
-                "Real Song Title 3 - Artist Name"
-            ],
-            "method": "simplified_v3",
-            "version": "3.0.0-simplified",
-            "timestamp": datetime.now().isoformat()
-        }
-    
-    print("✅ Simplified v3.0.0 API loaded successfully")
+    try:
+        if PLAYWRIGHT_EXTRACTOR_AVAILABLE:
+            print("🎭 Using Playwright production extractor...")
+            result = await extract_songs_production_async(url, expected_count=max_songs)
+            
+            return {
+                "success": result.get("success", True),
+                "url": url,
+                "songs_found": result.get("actual_count", len(result.get("songs", []))),
+                "songs": result.get("songs", [])[:max_songs],
+                "method": result.get("method", "playwright_direct"),
+                "version": "3.0.0-playwright-production",
+                "execution_time": result.get("execution_time", 0),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        elif COMPREHENSIVE_AVAILABLE:
+            print("🔧 Using comprehensive extractor...")
+            extractor = ComprehensiveSongExtractor()
+            result = extractor.extract_songs_comprehensive(url, expected_count=max_songs)
+            
+            return {
+                "success": True,
+                "url": url,
+                "songs_found": len(result.get("songs", [])),
+                "songs": result.get("songs", [])[:max_songs],
+                "method": "comprehensive_extractor",
+                "version": "3.0.0-comprehensive",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        else:
+            # This should not happen with our existing codebase
+            raise HTTPException(status_code=500, detail="No extraction methods available")
+            
+    except Exception as e:
+        print(f"❌ Extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
+
+print("🚀 v3.0.0 API with proven Playwright extraction ready!")
 
 # This is what Railway will import when it runs "uvicorn main:app"
 if __name__ == "__main__":
